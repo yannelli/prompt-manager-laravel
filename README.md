@@ -1,3 +1,5 @@
+[![Tests](https://github.com/yannelli/prompt-manager-laravel/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/yannelli/prompt-manager-laravel/actions/workflows/tests.yml)
+
 # Prompt Manager for Laravel
 
 A powerful Laravel package for managing prompt templates with versioning, component toggling, chaining, and customizable type handlers.
