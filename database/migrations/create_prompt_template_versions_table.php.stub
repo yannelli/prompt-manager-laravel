@@ -1,0 +1,53 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create(config('prompt-templates.tables.prompt_template_versions', 'prompt_template_versions'), function (Blueprint $table) {
+            $table->id();
+            $table->uuid('uuid')->unique();
+
+            $table->foreignId('prompt_template_id')
+                ->constrained(config('prompt-templates.tables.prompt_templates', 'prompt_templates'))
+                ->cascadeOnDelete();
+
+            $table->unsignedInteger('version');
+
+            // Snapshot of content at this version
+            $table->longText('system_prompt')->nullable();
+            $table->longText('user_prompt')->nullable();
+            $table->longText('assistant_prompt')->nullable();
+            $table->longText('content')->nullable();
+
+            // Version mapping
+            $table->string('mapper_class')->nullable(); // Custom mapper for this version
+            $table->json('mapping_rules')->nullable(); // Rules for mapping to/from this version
+
+            // Version metadata
+            $table->string('changelog')->nullable();
+            $table->json('variables')->nullable();
+            $table->json('metadata')->nullable();
+
+            // Tracking
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->boolean('is_stable')->default(false);
+            $table->boolean('is_deprecated')->default(false);
+            $table->timestamp('deprecated_at')->nullable();
+
+            $table->timestamps();
+
+            $table->unique(['prompt_template_id', 'version']);
+            $table->index(['prompt_template_id', 'is_stable']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists(config('prompt-templates.tables.prompt_template_versions', 'prompt_template_versions'));
+    }
+};

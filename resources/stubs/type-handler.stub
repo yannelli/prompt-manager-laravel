@@ -1,0 +1,79 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use PromptManager\PromptTemplates\DTOs\RenderedPrompt;
+use PromptManager\PromptTemplates\Handlers\AbstractTypeHandler;
+use PromptManager\PromptTemplates\Models\PromptTemplate;
+
+class {{ class }} extends AbstractTypeHandler
+{
+    /**
+     * Handle and render the prompt template.
+     */
+    public function __invoke(PromptTemplate $template, array $variables = [], array $options = []): RenderedPrompt
+    {
+        $expected = $template->getExpectedVariables();
+        $usedVariables = [];
+
+        $systemPrompt = null;
+        $userPrompt = null;
+        $assistantPrompt = null;
+        $content = null;
+
+        if ($template->system_prompt) {
+            $systemPrompt = $this->substituteVariables($template->system_prompt, $variables, $expected);
+        }
+
+        if ($template->user_prompt) {
+            $userPrompt = $this->substituteVariables($template->user_prompt, $variables, $expected);
+        }
+
+        if ($template->assistant_prompt) {
+            $assistantPrompt = $this->substituteVariables($template->assistant_prompt, $variables, $expected);
+        }
+
+        if ($template->content) {
+            $content = $this->substituteVariables($template->content, $variables, $expected);
+        }
+
+        // Add your custom rendering logic here
+
+        return new RenderedPrompt(
+            systemPrompt: $systemPrompt,
+            userPrompt: $userPrompt,
+            assistantPrompt: $assistantPrompt,
+            content: $content,
+            metadata: $template->metadata ?? [],
+            templateId: $template->uuid,
+            version: $template->current_version,
+            usedVariables: $usedVariables,
+        );
+    }
+
+    /**
+     * Validate the template structure for this type.
+     */
+    public function validate(PromptTemplate $template): bool
+    {
+        // Add your validation logic here
+        return true;
+    }
+
+    /**
+     * Get the schema for variables expected by this type.
+     */
+    public function getVariableSchema(): array
+    {
+        return [
+            // Define your variable schema here
+            // 'variable_name' => [
+            //     'type' => 'string',
+            //     'required' => true,
+            //     'description' => 'Description of the variable',
+            // ],
+        ];
+    }
+}

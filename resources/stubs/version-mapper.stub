@@ -1,0 +1,75 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use PromptManager\PromptTemplates\DTOs\VersionMappingResult;
+use PromptManager\PromptTemplates\Models\PromptTemplateVersion;
+use PromptManager\PromptTemplates\Support\AbstractVersionMapper;
+
+class {{ class }} extends AbstractVersionMapper
+{
+    /**
+     * The source version this mapper handles.
+     */
+    protected int $sourceVersion = {{ sourceVersion }};
+
+    /**
+     * The target version this mapper produces.
+     */
+    protected int $targetVersion = {{ targetVersion }};
+
+    /**
+     * Map content from source version to target version.
+     */
+    public function map(
+        PromptTemplateVersion $fromVersion,
+        PromptTemplateVersion $toVersion,
+        array $content
+    ): VersionMappingResult {
+        $transformations = [];
+        $warnings = [];
+
+        // Add your mapping logic here
+        // Example transformations:
+
+        // Rename a field
+        // $content = $this->renameKey($content, 'old_field', 'new_field');
+        // $transformations[] = "Renamed 'old_field' to 'new_field'";
+
+        // Remove a deprecated field
+        // $content = $this->removeKey($content, 'deprecated_field');
+        // $transformations[] = "Removed 'deprecated_field'";
+
+        // Set a default value for a new field
+        // $content = $this->setDefault($content, 'new_field', 'default_value');
+        // $transformations[] = "Added default value for 'new_field'";
+
+        // Transform a value
+        // $content = $this->transformValue($content, 'field', fn($value) => strtoupper($value));
+        // $transformations[] = "Transformed 'field' value";
+
+        return VersionMappingResult::success(
+            content: $content,
+            fromVersion: $this->sourceVersion,
+            toVersion: $this->targetVersion,
+            transformations: $transformations,
+            warnings: $warnings
+        );
+    }
+
+    /**
+     * Map variables from source version to target version.
+     */
+    public function mapVariables(
+        PromptTemplateVersion $fromVersion,
+        PromptTemplateVersion $toVersion,
+        array $variables
+    ): array {
+        // Add your variable mapping logic here
+        // This is useful when variable names or structures change between versions
+
+        return $variables;
+    }
+}

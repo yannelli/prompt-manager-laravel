@@ -1,0 +1,57 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create(config('prompt-templates.tables.prompt_pipeline_steps', 'prompt_pipeline_steps'), function (Blueprint $table) {
+            $table->id();
+            $table->uuid('uuid')->unique();
+
+            $table->foreignId('prompt_pipeline_id')
+                ->constrained(config('prompt-templates.tables.prompt_pipelines', 'prompt_pipelines'))
+                ->cascadeOnDelete();
+
+            $table->foreignId('prompt_template_id')
+                ->nullable()
+                ->constrained(config('prompt-templates.tables.prompt_templates', 'prompt_templates'))
+                ->nullOnDelete();
+
+            // Step identification
+            $table->string('name');
+            $table->integer('order')->default(0);
+
+            // Alternative to template - custom handler
+            $table->string('handler_class')->nullable();
+
+            // Input/Output mapping
+            $table->json('input_mapping')->nullable(); // Map pipeline input to step variables
+            $table->json('output_mapping')->nullable(); // Map step output to pipeline context
+
+            // Conditional execution
+            $table->json('conditions')->nullable(); // Conditions for executing this step
+            $table->boolean('continue_on_failure')->default(false);
+            $table->integer('retry_attempts')->default(0);
+
+            // Step configuration
+            $table->json('config')->nullable();
+            $table->json('variable_overrides')->nullable();
+
+            // Status
+            $table->boolean('is_enabled')->default(true);
+
+            $table->timestamps();
+
+            $table->index(['prompt_pipeline_id', 'order']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists(config('prompt-templates.tables.prompt_pipeline_steps', 'prompt_pipeline_steps'));
+    }
+};

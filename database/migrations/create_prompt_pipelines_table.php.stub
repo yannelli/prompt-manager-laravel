@@ -1,0 +1,40 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create(config('prompt-templates.tables.prompt_pipelines', 'prompt_pipelines'), function (Blueprint $table) {
+            $table->id();
+            $table->uuid('uuid')->unique();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->text('description')->nullable();
+
+            // Ownership
+            $table->unsignedBigInteger('user_id')->nullable();
+
+            // Pipeline configuration
+            $table->json('config')->nullable();
+            $table->json('input_schema')->nullable(); // Expected input structure
+            $table->json('output_schema')->nullable(); // Expected output structure
+
+            // Status
+            $table->boolean('is_active')->default(true);
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['user_id', 'is_active']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists(config('prompt-templates.tables.prompt_pipelines', 'prompt_pipelines'));
+    }
+};
