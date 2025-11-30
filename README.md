@@ -325,3 +325,7 @@ composer test
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+
+Learn more about our mission:
+Author: [Ryan Yannelli](https://ryanyannelli.com)
+Sponsor: [Nextvisit AI Medical Scribe](https://nextvisit.ai)
