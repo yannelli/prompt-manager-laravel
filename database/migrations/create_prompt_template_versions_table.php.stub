@@ -1,0 +1,49 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create(config('prompt-manager.tables.versions', 'prompt_template_versions'), function (Blueprint $table) {
+            $table->id();
+            $table->uuid('uuid')->unique();
+            $table->foreignId('prompt_template_id')
+                  ->constrained(config('prompt-manager.tables.templates', 'prompt_templates'))
+                  ->cascadeOnDelete();
+            $table->unsignedInteger('version_number');
+            $table->text('content');
+            $table->json('variables')->nullable();
+            $table->json('component_config')->nullable();
+            $table->json('mapping_rules')->nullable();
+            $table->string('change_summary')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->boolean('is_published')->default(false);
+            $table->timestamp('published_at')->nullable();
+            $table->timestamps();
+
+            $table->unique(['prompt_template_id', 'version_number']);
+            $table->index('is_published');
+        });
+
+        // Add foreign key for current_version_id after versions table exists
+        Schema::table(config('prompt-manager.tables.templates', 'prompt_templates'), function (Blueprint $table) {
+            $table->foreign('current_version_id')
+                  ->references('id')
+                  ->on(config('prompt-manager.tables.versions', 'prompt_template_versions'))
+                  ->nullOnDelete();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table(config('prompt-manager.tables.templates', 'prompt_templates'), function (Blueprint $table) {
+            $table->dropForeign(['current_version_id']);
+        });
+
+        Schema::dropIfExists(config('prompt-manager.tables.versions', 'prompt_template_versions'));
+    }
+};

@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Release
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTHOR_NAME: Ryan Yannelli
+          GIT_AUTHOR_EMAIL: ryanyannelli@gmail.com
+          GIT_COMMITTER_NAME: Ryan Yannelli
+          GIT_COMMITTER_EMAIL: ryanyannelli@gmail.com
+        run: |
+          npm install @semantic-release/commit-analyzer @semantic-release/exec @semantic-release/changelog @semantic-release/github @semantic-release/release-notes-generator @semantic-release/git -D
+          npx semantic-release
